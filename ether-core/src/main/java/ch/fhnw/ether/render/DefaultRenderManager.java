@@ -37,6 +37,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.render.IRenderer.IRenderState;
@@ -46,6 +47,7 @@ import ch.fhnw.ether.render.variable.builtin.LightUniformBlock;
 import ch.fhnw.ether.scene.camera.Camera;
 import ch.fhnw.ether.scene.camera.ICamera;
 import ch.fhnw.ether.scene.camera.IViewCameraState;
+import ch.fhnw.ether.scene.light.GenericLight;
 import ch.fhnw.ether.scene.light.ILight;
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.scene.mesh.IMesh.Queue;
@@ -187,7 +189,7 @@ public class DefaultRenderManager implements IRenderManager {
 		 * scene update flags, this renderer needs to take care that the
 		 * returned render state is always realized, otherwise the states will
 		 * get out of sync resulting in undefined overall state.
-		 * 
+		 *
 		 * @param renderer
 		 * @return render state to be submitted to renderer
 		 */
@@ -242,13 +244,15 @@ public class DefaultRenderManager implements IRenderManager {
 
 			// 2. add lights to render state
 			// currently updates are not checked, we simply update everything
-			final List<ILight> renderLights = Collections.unmodifiableList(new ArrayList<>(lights));
+			final List<ILight> lightUpdates = lights.stream().map(ILight::clone).collect(Collectors.toList());
+			final List<ILight> renderLights = Collections.unmodifiableList(new ArrayList<>(lightUpdates));
 
 			// 3. set view matrices for each updated camera, add to render state
 			final List<IRenderTargetState> targets = new ArrayList<>();
 			views.forEach((view, svs) -> {
 				if (svs.camera.getUpdater().test())
 					svs.viewCameraState = new ViewCameraState(view, svs.camera);
+				final IViewCameraState viewCameraState = svs.viewCameraState;
 				targets.add(new IRenderTargetState() {
 					@Override
 					public IView getView() {
@@ -257,7 +261,7 @@ public class DefaultRenderManager implements IRenderManager {
 
 					@Override
 					public IViewCameraState getViewCameraState() {
-						return svs.viewCameraState;
+						return viewCameraState;
 					}
 
 					@Override
@@ -294,7 +298,7 @@ public class DefaultRenderManager implements IRenderManager {
 				@Override
 				public List<IRenderTargetState> getRenderStates() {
 					return renderTargets;
-				}				
+				}
 			};
 		}
 	}
