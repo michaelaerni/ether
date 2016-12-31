@@ -43,5 +43,7 @@ public interface ILight extends I3DObject, Cloneable {
 
 	void setLightSource(LightSource lightSource);
 
+	void setSpotDirection(Vec3 spotDirection);
+
 	ILight clone();
 }
