@@ -114,7 +114,7 @@ public class GenericLight implements ILight {
 		public RGB getColor() {
 			return color;
 		}
-
+		
 		public float getRange() {
 			return range;
 		}
@@ -135,13 +135,8 @@ public class GenericLight implements ILight {
 	private String name = "unnamed_light";
 
 	private LightSource lightSource;
-
+	
 	private UpdateRequest update = new UpdateRequest();
-
-	protected GenericLight(GenericLight genericLight) {
-		this(genericLight.lightSource);
-		this.name = genericLight.name;
-	}
 
 	protected GenericLight(LightSource lightSource) {
 		this.lightSource = lightSource;
@@ -185,7 +180,7 @@ public class GenericLight implements ILight {
 		this.lightSource = lightSource;
 		updateRequest();
 	}
-
+	
 	@Override
 	public final void setSpotDirection(Vec3 spotDirection) {
 		lightSource = new LightSource(lightSource.type, new Vec3(lightSource.position), lightSource.ambient, lightSource.color, lightSource.range, spotDirection, lightSource.spotCosCutoff, lightSource.spotExponent);
@@ -207,18 +202,13 @@ public class GenericLight implements ILight {
 	public final int hashCode() {
 		return super.hashCode();
 	}
-
+	
 	@Override
 	public String toString() {
 		return name;
 	}
-
+	
 	protected final void updateRequest() {
 		update.request();
-	}
-
-	@Override
-	public GenericLight clone() {
-		return new GenericLight(this);
 	}
 }
