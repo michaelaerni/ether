@@ -39,7 +39,7 @@ import ch.fhnw.ether.render.gl.FloatUniformBuffer;
 import ch.fhnw.ether.render.variable.builtin.LightUniformBlock;
 import ch.fhnw.ether.scene.attribute.IAttribute;
 import ch.fhnw.ether.scene.camera.IViewCameraState;
-import ch.fhnw.ether.scene.light.ILight;
+import ch.fhnw.ether.scene.light.ILight.LightSource;
 
 public final class LightInfo {
 	private final FloatUniformBuffer uniforms = new FloatUniformBuffer(LightUniformBlock.BLOCK_SIZE);
@@ -52,7 +52,7 @@ public final class LightInfo {
 		return numLights;
 	}
 	
-	public void update(IViewCameraState matrices, List<ILight> lights) {
+	public void update(IViewCameraState matrices, List<LightSource> lights) {
 		LightUniformBlock.loadUniforms(uniforms, lights, matrices);
 		numLights = lights.size();
 		uniforms.bind();

@@ -97,6 +97,9 @@ final class MtlParser {
 		case "Ka":
 			currentMaterial.setAmbientColor(new RGB(Float.parseFloat(words[1]), Float.parseFloat(words[2]), Float.parseFloat(words[3])));
 			break;
+		case "Ke":
+			currentMaterial.setEmissionColor(new RGB(Float.parseFloat(words[1]), Float.parseFloat(words[2]), Float.parseFloat(words[3])));
+			break;
 		case "Kd":
 			currentMaterial.setDiffuseColor(new RGB(Float.parseFloat(words[1]), Float.parseFloat(words[2]), Float.parseFloat(words[3])));
 			break;

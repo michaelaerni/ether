@@ -43,6 +43,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWImage;
+import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
@@ -284,7 +285,14 @@ final class GLFWWindow implements IWindow {
 	@Override
 	public void setFullscreen(IMonitor monitor) {
 		checkMainThread();
-		GLFW.glfwSetWindowMonitor(window, monitor == null ? MemoryUtil.NULL : ((GLFWMonitor)monitor).getHandle(), (int)windowPosition.x, (int)windowPosition.y, (int)windowSize.x, (int)windowSize.y, GLFW.GLFW_DONT_CARE);
+		if (monitor == null) {
+			GLFW.glfwSetWindowMonitor(window, MemoryUtil.NULL, (int) windowPosition.x, (int) windowPosition.y,
+					(int) windowSize.x, (int) windowSize.y, GLFW.GLFW_DONT_CARE);
+		} else {
+			long m = ((GLFWMonitor) monitor).getHandle();
+			GLFWVidMode mode = GLFW.glfwGetVideoMode(m);
+			GLFW.glfwSetWindowMonitor(window, m, 0, 0, mode.width(), mode.height(), mode.refreshRate());
+		}
 	}
 
 	@Override
@@ -309,6 +317,29 @@ final class GLFWWindow implements IWindow {
 		GLFW.glfwSetCursorPos(window, x, y);
 	}
 
+	private static final Map<File, Long> FILE2CRSR = new HashMap<>();
+	
+	@Override
+	public void setPointerIcon(File file, int hotX, int hotY) {
+		checkMainThread();
+		Long cursor = FILE2CRSR.get(file);
+		if(cursor == null) {
+			try {
+				IHostImage src = Platform.get().getImageSupport().readHost(new FileInputStream(file), ComponentType.BYTE, ComponentFormat.RGBA, AlphaMode.POST_MULTIPLIED);
+				GLFWImage image = GLFWImage.malloc();
+				image.set(src.getWidth(), src.getHeight(), flip(src.getPixels(), src.getHeight()));			
+				cursor = Long.valueOf(GLFW.glfwCreateCursor(image, hotX, hotY));
+				FILE2CRSR.put(file, cursor);
+				image.free();
+			} catch(Throwable t) {
+				log.warning(t);
+			}
+		}
+		if(cursor != null)
+			GLFW.glfwSetCursor(window, cursor.longValue());
+	}
+
+	
 	@Override
 	public void setWindowListener(IWindowListener windowListener) {
 		checkMainThread();
@@ -483,26 +514,6 @@ final class GLFWWindow implements IWindow {
 	private void checkMainThread() {
 		if (!Platform.get().isMainThread())
 			throw new IllegalThreadStateException("must be called from main thread, but called from " + Thread.currentThread());
-	}
-
-	private static final Map<File, Long> FILE2CRSR = new HashMap<>();
-	@Override
-	public void setPointerIcon(File file, int hotX, int hotY) {
-		Long cursor = FILE2CRSR.get(file);
-		if(cursor == null) {
-			try {
-				IHostImage src = Platform.get().getImageSupport().readHost(new FileInputStream(file), ComponentType.BYTE, ComponentFormat.RGBA, AlphaMode.POST_MULTIPLIED);
-				GLFWImage image = GLFWImage.malloc();
-				image.set(src.getWidth(), src.getHeight(), flip(src.getPixels(), src.getHeight()));			
-				cursor = Long.valueOf(GLFW.glfwCreateCursor(image, hotX, hotY));
-				FILE2CRSR.put(file, cursor);
-				image.free();
-			} catch(Throwable t) {
-				log.warning(t);
-			}
-		}
-		if(cursor != null)
-			GLFW.glfwSetCursor(window, cursor.longValue());
 	}
 
 	private ByteBuffer flip(ByteBuffer pixels, int h) {

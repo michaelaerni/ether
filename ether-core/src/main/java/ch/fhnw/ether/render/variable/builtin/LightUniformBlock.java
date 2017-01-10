@@ -37,8 +37,7 @@ import ch.fhnw.ether.render.IRenderer.RendererAttribute;
 import ch.fhnw.ether.render.gl.FloatUniformBuffer;
 import ch.fhnw.ether.render.variable.base.UniformBlock;
 import ch.fhnw.ether.scene.camera.IViewCameraState;
-import ch.fhnw.ether.scene.light.GenericLight.LightSource;
-import ch.fhnw.ether.scene.light.ILight;
+import ch.fhnw.ether.scene.light.ILight.LightSource;
 
 public final class LightUniformBlock extends UniformBlock {
 	public static final RendererAttribute<Integer> ATTRIBUTE = new RendererAttribute<>("builtin.light_uniform_block");
@@ -59,18 +58,17 @@ public final class LightUniformBlock extends UniformBlock {
 		super(ATTRIBUTE, shaderName);
 	}
 
-	public static void loadUniforms(FloatUniformBuffer uniforms, Collection<ILight> lights, IViewCameraState matrices) {
+	public static void loadUniforms(FloatUniformBuffer uniforms, Collection<LightSource> lights, IViewCameraState matrices) {
 		uniforms.load((blockIndex, buffer) -> {
-			for (ILight light : lights) {
-				LightSource source = light.getLightSource();
-				float[] trss = new float[] { source.getType().ordinal(), source.getRange(), source.getSpotCosCutoff(), source.getSpotExponent() };
+			for (LightSource light : lights) {
+				float[] trss = new float[] { light.getType().ordinal(), light.getRange(), light.getSpotCosCutoff(), light.getSpotExponent() };
 				buffer.put(trss);
-				buffer.put(matrices.getViewMatrix().transform(source.getPosition()).toArray());
-				buffer.put(source.getAmbient().toArray());
+				buffer.put(matrices.getViewMatrix().transform(light.getPosition()).toArray());
+				buffer.put(light.getAmbient().toArray());
 				buffer.put(0);
-				buffer.put(source.getColor().toArray());
+				buffer.put(light.getColor().toArray());
 				buffer.put(0);
-				buffer.put(matrices.getNormalMatrix().transform(source.getSpotDirection()).toArray());
+				buffer.put(matrices.getNormalMatrix().transform(light.getSpotDirection()).toArray());
 				buffer.put(0);
 			}
 			for (int i = 0; i < LightUniformBlock.MAX_LIGHTS - lights.size(); ++i) {

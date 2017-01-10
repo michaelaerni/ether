@@ -36,10 +36,18 @@ import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
 
 public class ImageTarget extends AbstractVideoTarget {
-	private final IHostImage image;
+	private IHostImage image;
+
+	public ImageTarget(boolean realTime) {
+		this(null, realTime);
+	}
 
 	public ImageTarget(IHostImage image) {
-		super(Thread.MIN_PRIORITY, AbstractVideoFX.CPUFX, false);
+		this(image, false);
+	}
+	
+	public ImageTarget(IHostImage image, boolean realTime) {
+		super(Thread.MIN_PRIORITY, AbstractVideoFX.CPUFX, realTime);
 		this.image = image;
 	}
 
@@ -49,7 +57,13 @@ public class ImageTarget extends AbstractVideoTarget {
 		IHostImage videoImage = videoFrame.getHostImage();
 		sleepUntil(videoFrame.playOutTime);
 		synchronized (this) {
+			if(image == null)
+				image = videoImage.allocate();
 			image.setSubImage(0, 0, videoImage.scale(image.getWidth(), image.getHeight()));
 		}
+	}
+	
+	public IHostImage getImage() {
+		return image;
 	}
 }

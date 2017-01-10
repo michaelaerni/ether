@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -209,6 +210,11 @@ public class RTPSession implements ActionListener {
 				}
 			}
 			//LOG.info(this + "Sent frame #" + imagenb + " as "+rtp_packets.size()+" packets to " + (socketRTP == null ? " channel " : clientIP + ":") + clientRTPport); 
+		}
+		catch(SocketException t) {
+			LOG.severe(t.getMessage());
+			timer.stop();
+			rtcpReceiver.close();
 		}
 		catch(Throwable t) {
 			LOG.severe(t);

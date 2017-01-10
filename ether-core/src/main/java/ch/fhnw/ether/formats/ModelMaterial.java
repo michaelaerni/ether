@@ -37,6 +37,7 @@ import ch.fhnw.util.color.RGB;
 public final class ModelMaterial {
 	private final String name;
 	private RGB ambientColor;
+	private RGB emissionColor;
 	private RGB diffuseColor;
 	private RGB specularColor;
 	private float shininess;
@@ -62,6 +63,14 @@ public final class ModelMaterial {
 
 	public void setAmbientColor(RGB color) {
 		ambientColor = color;
+	}
+
+	public RGB getEmissionColor() {
+		return emissionColor;
+	}
+
+	public void setEmissionColor(RGB color) {
+		emissionColor = color;
 	}
 
 	public RGB getDiffuseColor() {

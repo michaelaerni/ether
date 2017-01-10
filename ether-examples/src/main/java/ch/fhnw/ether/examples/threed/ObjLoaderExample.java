@@ -69,6 +69,7 @@ public class ObjLoaderExample {
 	
 			try {
 				final URL obj = getClass().getResource("/models/fhnw.obj");
+				//final URL obj = new URL("file:///Users/radar/Desktop/cube.obj");
 				//final URL obj = new URL("file:///Users/radar/Desktop/brz_lod300.obj");
 				//final URL obj = new URL("file:///Users/radar/Desktop/aventador/aventador_red.obj");
 				//final URL obj = new URL("file:///Users/radar/Desktop/demopolis/berlin_mitte_o2_o3/o2_small.obj");

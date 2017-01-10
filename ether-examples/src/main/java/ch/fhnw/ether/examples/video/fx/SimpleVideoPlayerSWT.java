@@ -40,8 +40,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Shell;
 
+import ch.fhnw.ether.audio.IAudioRenderTarget;
+import ch.fhnw.ether.audio.IAudioSource;
+import ch.fhnw.ether.audio.JavaSoundTarget;
+import ch.fhnw.ether.audio.fx.AudioGain;
 import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
 import ch.fhnw.ether.image.IImage.ComponentType;
@@ -49,6 +55,7 @@ import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.RenderProgram;
 import ch.fhnw.ether.media.Sync;
 import ch.fhnw.ether.platform.Platform;
+import ch.fhnw.ether.platform.SWTImageSupport;
 import ch.fhnw.ether.ui.ParameterWindow;
 import ch.fhnw.ether.video.ArrayVideoSource;
 import ch.fhnw.ether.video.CameraInfo;
@@ -59,12 +66,11 @@ import ch.fhnw.ether.video.ImageTarget;
 import ch.fhnw.ether.video.URLVideoSource;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
 import ch.fhnw.util.CollectionUtilities;
-import ch.fhnw.util.net.rtp.RTPFrameTarget;
 
-public class SimpleVideoPlayerRTP {
+public class SimpleVideoPlayerSWT {
 	public static void main(String[] args) throws Exception {
 		Platform.get().init();
-		
+
 		AbstractFrameSource source;
 		try {
 			try {
@@ -76,7 +82,7 @@ public class SimpleVideoPlayerRTP {
 			source =  CameraSource.create(CameraInfo.getInfos()[0]);
 		}
 		IVideoSource   mask     = null; 
-		RTPFrameTarget videoOut = new RTPFrameTarget(9999);
+		ImageTarget    videoOut = new ImageTarget(true);
 		try {mask = new ArrayVideoSource(new URLVideoSource(new File(args[1]).toURI().toURL(), 1), Sync.ASYNC);} catch(Throwable t) {}
 
 		List<AbstractVideoFX> fxs = CollectionUtilities.asList(
@@ -118,12 +124,34 @@ public class SimpleVideoPlayerRTP {
 					current.set(newIdx);
 				}
 			}
-			);
+					);
 		}, video);
 
 		videoOut.useProgram(video);
+
+		if(source instanceof IAudioSource) {
+			RenderProgram<IAudioRenderTarget> audio = new RenderProgram<>((IAudioSource)source, new AudioGain()); 
+			JavaSoundTarget audioOut = new JavaSoundTarget(((IAudioSource)source), 2 / source.getFrameRate());
+			audioOut.useProgram(audio);
+			videoOut.setTimebase(audioOut);
+			audioOut.start();
+		}
+
 		videoOut.start();
-		
+
+		Shell shell = new Shell();
+		shell.setText("Simple Video Player");
+		shell.setSize(1024, 512);
+		shell.setVisible(true);
+		shell.addPaintListener(e->{
+			try {
+				Image image = new Image(shell.getDisplay(), SWTImageSupport.toImageData(videoOut.getImage()));
+				e.gc.drawImage(image, 0, 0);
+				image.dispose();
+				shell.redraw();
+			} catch(Throwable t) {}
+		});
+
 		Platform.get().run();
 	}
 

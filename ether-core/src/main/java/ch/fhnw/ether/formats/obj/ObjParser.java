@@ -222,6 +222,8 @@ final class ObjParser {
 	}
 
 	private void parseUsemtl(String[] words) {
+		String name = getCurrentGroup().getName() + " " + words[1];
+		setCurrentGroup(new ModelGroup(name));
 		getCurrentGroup().setMaterial(object.getMaterials().get(words[1]));
 	}
 

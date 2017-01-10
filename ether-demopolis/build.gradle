@@ -4,9 +4,19 @@ plugins {
 
 description = """ether-demopolis"""
 
+public Iterable getJvmArgs(String platform) {
+  switch(platform.replaceAll(' ', '').toLowerCase()) {
+    case ~/.*linux.*/:  return []
+    case ~/.*darwin.*/: return ["-XstartOnFirstThread"]
+    case ~/.*osx.*/:    return ["-XstartOnFirstThread"]
+    case ~/.*win.*/:    return []
+    default:            return platform
+  }
+}
+
 apply plugin: 'application'
 mainClassName = "ch.fhnw.demopolis.main.Demopolis"
-applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
+applicationDefaultJvmArgs = getJvmArgs(System.properties['os.name'])
 
 dependencies {
     compile project(":ether-core")

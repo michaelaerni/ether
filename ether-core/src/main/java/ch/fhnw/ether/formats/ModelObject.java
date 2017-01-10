@@ -199,7 +199,7 @@ public final class ModelObject {
 				material = materials.get(mat);
 				if (material == null) {
 					if (mat != null) {
-						material = new ShadedMaterial(RGB.BLACK, mat.getAmbientColor(), mat.getDiffuseColor(), mat.getSpecularColor(), mat.getShininess(), 1, 1, mat.getTexture());
+						material = new ShadedMaterial(mat.getEmissionColor(), mat.getAmbientColor(), mat.getDiffuseColor(), mat.getSpecularColor(), mat.getShininess(), 1, 1, mat.getTexture());
 						material.setName(mat.getName());
 					} else {
 						material = new ShadedMaterial(RGB.WHITE);

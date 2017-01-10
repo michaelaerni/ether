@@ -46,7 +46,9 @@ import ch.fhnw.ether.render.variable.builtin.LightUniformBlock;
 import ch.fhnw.ether.scene.camera.Camera;
 import ch.fhnw.ether.scene.camera.ICamera;
 import ch.fhnw.ether.scene.camera.IViewCameraState;
+import ch.fhnw.ether.scene.light.GenericLight;
 import ch.fhnw.ether.scene.light.ILight;
+import ch.fhnw.ether.scene.light.ILight.LightSource;
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.scene.mesh.IMesh.Queue;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
@@ -101,15 +103,15 @@ public class DefaultRenderManager implements IRenderManager {
 
 	private final class SceneState {
 		final Map<IView, SceneViewState> views = new IdentityHashMap<>();
-		final List<ILight> lights = new ArrayList<>(Collections.singletonList(ILight.DEFAULT_LIGHT));
 		final Set<IMaterial> materials = Collections.newSetFromMap(new IdentityHashMap<>());
 		final Set<IGeometry> geometries = Collections.newSetFromMap(new IdentityHashMap<>());
 		final Map<IMesh, SceneMeshState> meshes = new IdentityHashMap<>();
+		final List<ILight> lights = new ArrayList<>(Collections.singletonList(ILight.DEFAULT_LIGHT));
 
 		List<Renderable> renderables = new ArrayList<>();
 		boolean hasPost = false;
 
-		boolean rebuildMeshes = false;
+		boolean rebuildMeshes = true;
 
 		SceneState() {
 		}
@@ -144,6 +146,18 @@ public class DefaultRenderManager implements IRenderManager {
 			return views.get(view).viewCameraState;
 		}
 
+		void addMesh(IMesh mesh) {
+			if (meshes.putIfAbsent(mesh, new SceneMeshState()) != null)
+				throw new IllegalArgumentException("mesh already in renderer: " + mesh);
+			rebuildMeshes = true;
+		}
+
+		void removeMesh(IMesh mesh) {
+			if (meshes.remove(mesh) == null)
+				throw new IllegalArgumentException("mesh not in renderer: " + mesh);
+			rebuildMeshes = true;
+		}
+
 		void addLight(ILight light) {
 			if (lights.contains(light))
 				throw new IllegalArgumentException("light already in renderer: " + light);
@@ -161,23 +175,11 @@ public class DefaultRenderManager implements IRenderManager {
 				lights.add(ILight.DEFAULT_LIGHT);
 		}
 
-		void addMesh(IMesh mesh) {
-			if (meshes.putIfAbsent(mesh, new SceneMeshState()) != null)
-				throw new IllegalArgumentException("mesh already in renderer: " + mesh);
-			rebuildMeshes = true;
-		}
-
-		void removeMesh(IMesh mesh) {
-			if (meshes.remove(mesh) == null)
-				throw new IllegalArgumentException("mesh not in renderer: " + mesh);
-			rebuildMeshes = true;
-		}
-
 		public void clear() {
-			lights.clear();
 			materials.clear();
 			geometries.clear();
 			meshes.clear();
+			lights.clear();
 			rebuildMeshes = true;
 		}
 
@@ -241,14 +243,16 @@ public class DefaultRenderManager implements IRenderManager {
 			final List<IRenderUpdate> renderUpdates = Collections.unmodifiableList(updates);
 
 			// 2. add lights to render state
-			// currently updates are not checked, we simply update everything
-			final List<ILight> renderLights = Collections.unmodifiableList(new ArrayList<>(lights));
+			// TODO: currently updates are not checked, we simply update everything
+			final List<GenericLight.LightSource> renderLights = new ArrayList<>(lights.size());
+			lights.forEach((light) -> renderLights.add(light.getLightSource()));
 
 			// 3. set view matrices for each updated camera, add to render state
 			final List<IRenderTargetState> targets = new ArrayList<>();
 			views.forEach((view, svs) -> {
 				if (svs.camera.getUpdater().test())
 					svs.viewCameraState = new ViewCameraState(view, svs.camera);
+				final IViewCameraState viewCameraState = svs.viewCameraState;
 				targets.add(new IRenderTargetState() {
 					@Override
 					public IView getView() {
@@ -257,7 +261,7 @@ public class DefaultRenderManager implements IRenderManager {
 
 					@Override
 					public IViewCameraState getViewCameraState() {
-						return svs.viewCameraState;
+						return viewCameraState;
 					}
 
 					@Override
@@ -266,7 +270,7 @@ public class DefaultRenderManager implements IRenderManager {
 					}
 
 					@Override
-					public List<ILight> getLights() {
+					public List<LightSource> getLights() {
 						return renderLights;
 					}
 

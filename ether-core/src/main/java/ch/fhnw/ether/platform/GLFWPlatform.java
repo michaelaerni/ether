@@ -108,7 +108,8 @@ class GLFWPlatform implements IPlatform {
 		if(!(exiting.getAndSet(true))) {
 			exitInternal();
 			errorCallback.free();
-			GLFW.glfwTerminate();
+			// XXX commented out for now, seems to frequently lead to crashes...
+			// GLFW.glfwTerminate();
 			System.exit(0);
 		}
 	}

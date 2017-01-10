@@ -35,7 +35,7 @@ import java.util.List;
 
 import ch.fhnw.ether.scene.attribute.AbstractAttribute;
 import ch.fhnw.ether.scene.camera.IViewCameraState;
-import ch.fhnw.ether.scene.light.ILight;
+import ch.fhnw.ether.scene.light.ILight.LightSource;
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.view.IView;
 
@@ -58,7 +58,7 @@ public interface IRenderer {
 
 		IViewCameraState getViewCameraState();
 
-		List<ILight> getLights();
+		List<LightSource> getLights();
 
 		List<Renderable> getRenderables();
 		

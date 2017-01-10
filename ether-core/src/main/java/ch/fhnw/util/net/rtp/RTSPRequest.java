@@ -133,7 +133,7 @@ public class RTSPRequest implements Runnable {
 						}
 						StringTokenizer tokens = new StringTokenizer(line);
 						String key = tokens.nextToken();
-
+						
 						if("CSeq:".equals(key))
 							cSeq = Integer.parseInt(tokens.nextToken());
 						else if("Session:".equals(key))
@@ -141,7 +141,7 @@ public class RTSPRequest implements Runnable {
 
 						if(REQTypes.contains(key))
 							reqType = REQType.valueOf(key);
-						request.put(key, line.substring(key.length() + 1));
+						request.put(key, line.length() > key.length() ? line.substring(key.length() + 1) : "");
 					}
 
 					switch(reqType) { 

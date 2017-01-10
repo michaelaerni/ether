@@ -255,6 +255,13 @@ public interface IWindow extends IDisposable {
 	 * Call from main thread only.
 	 */
 	void setPointerPosition(float x, float y);
+		
+	/**
+	 * Set pointer icon.
+	 * 
+	 * Call from main thread only.
+	 */
+	void setPointerIcon(File file, int hotX, int hotY);
 	
 	/**
 	 * Set window listener (or pass null to reset).
@@ -295,5 +302,4 @@ public interface IWindow extends IDisposable {
 		return Platform.get().createWindow(monitor, title);
 	}
 
-	void setPointerIcon(File file, int hotX, int hotY);
 }

@@ -41,6 +41,7 @@ import org.lwjgl.opengl.GL30;
 
 import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.IImage;
 import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.ether.media.AbstractRenderCommand;
 import ch.fhnw.ether.media.Parameter;
@@ -135,7 +136,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 				return new Vec3FloatUniform((ITypedAttribute<IVec3>)this, id());
 			else if(value instanceof IVec4)
 				return new Vec4FloatUniform((ITypedAttribute<IVec4>)this, id());
-			else if(value instanceof IGPUImage || value instanceof VideoFrame)
+			else if(value instanceof IImage || value instanceof VideoFrame)
 				return new SamplerUniform(id(), id(), unit, GL11.GL_TEXTURE_2D);
 			else
 				throw new IllegalArgumentException("Unsupported unifrom type:" + value.getClass().getName());
@@ -145,10 +146,12 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 		public void set(Object value) {
 			this.value = (T) value;
 		}
-
+		
 		public Object get() {
+			if(value instanceof IGPUImage)
+				return (IGPUImage)value;
 			if(value instanceof IHostImage)
-				return value;
+				return ((IHostImage)value).createGPUImage();
 			else if(value instanceof VideoFrame)
 				return ((VideoFrame)value).getGPUImage();
 			return value;

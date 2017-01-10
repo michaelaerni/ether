@@ -35,7 +35,11 @@ import java.net.URL;
 public final class Asset {
 	public static URL get(String name) {
 		try {
-			URL url = name.startsWith("/") ? new File(name).toURI().toURL() : Asset.class.getResource("/assets/" + name);
+			URL url = null;
+			if (name.startsWith("/") || name.charAt(1) == ':')
+				url = new File(name).toURI().toURL();
+			else
+				url = Asset.class.getResource("/assets/" + name);
 			if (url == null)
 				throw new IllegalArgumentException("no such asset: " + name);
 			return url;

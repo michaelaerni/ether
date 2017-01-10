@@ -64,7 +64,7 @@ public class BandPass extends AbstractVideoFX implements IVideoCPUFX {
 		ensureRGB8OrRGBA8(image);
 		final int numComponents = image.getComponentFormat().getNumComponents();
 
-		if (numComponents != 3 || numComponents != 4)
+		if (numComponents != 3 && numComponents != 4)
 			throw new IllegalArgumentException("#" + numComponents + " components unsupported");
 
 		if(rows != image.getHeight() || cols != image.getWidth()) {

@@ -285,7 +285,7 @@ public class DefaultController implements IController {
 	}
 	
 	protected void escAction() {
-		Platform.get().exit();
+		Platform.get().runOnMainThread(() -> Platform.get().exit());
 	}
 	
 	@Override

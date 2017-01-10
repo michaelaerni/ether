@@ -82,11 +82,11 @@ import ch.fhnw.util.CollectionUtilities;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.math.Mat4;
 
-public class SimplePlayerGL {
+public class SimpleVideoPlayerGL {
 	private static final float  SCALE  = 2.5f;
 	private static final Log    LOG    = Log.create();
 
-	public SimplePlayerGL(AbstractFrameSource source, IVideoSource mask) throws RenderCommandException {
+	public SimpleVideoPlayerGL(AbstractFrameSource source, IVideoSource mask) throws RenderCommandException {
 		final IController            controller = new DefaultController(source.getFrameRate());
 		final ColorMapMaterialTarget videoOut   = new ColorMapMaterialTarget(new ColorMapMaterial(), controller, true);
 
@@ -185,7 +185,7 @@ public class SimplePlayerGL {
 		} catch (Throwable t) {
 		}
 		
-		new SimplePlayerGL(source, mask);
+		new SimpleVideoPlayerGL(source, mask);
 		
 		Platform.get().run();
 	}
