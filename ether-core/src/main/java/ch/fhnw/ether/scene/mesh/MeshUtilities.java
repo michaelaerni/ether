@@ -290,7 +290,7 @@ public final class MeshUtilities {
 		float[] n = UNIT_QUAD_NORMALS;
 		float[] m = UNIT_QUAD_TEX_COORDS;
 		IGeometry g = requireTexCoords(material) ? DefaultGeometry.createVNM(v, n, m) :  DefaultGeometry.createVN(v, n);
-		return new DefaultMesh(Primitive.TRIANGLES, material, g, Flag.DONT_CAST_SHADOW);
+		return new DefaultMesh(Primitive.TRIANGLES, material, g, Queue.TRANSPARENCY,  Flag.DONT_CAST_SHADOW);
 	}
 
 	public static IMesh createScreenRectangle(float x0, float y0, float x1, float y1, RGBA color, IGPUImage colorMap) {
