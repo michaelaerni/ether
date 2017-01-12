@@ -88,7 +88,7 @@ public class GenericLight implements ILight {
 	
 	@Override
 	public final void setSpotDirection(Vec3 spotDirection) {
-		lightSource = new LightSource(lightSource.type, new Vec3(lightSource.position), lightSource.ambient, lightSource.color, lightSource.range, spotDirection, lightSource.spotCosCutoff, lightSource.spotExponent);
+		lightSource = new LightSource(lightSource.getType(), new Vec3(lightSource.getPosition()), lightSource.getAmbient(), lightSource.getColor(), lightSource.getRange(), spotDirection, lightSource.getSpotCosCutoff(), lightSource.getSpotExponent());
 		updateRequest();
 	}
 
